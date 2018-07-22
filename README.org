@@ -1,0 +1,4 @@
+* Helm-Org-Wiki
+This is a small set of functions which I made for myself to help navigate through the personal wiki which I have started. The main focus is on leveraging Helm and its fuzzy search to quickly navigate through the necessary folders and be able to open entries as quickly as possible. Additionally, there are several functions which have been added for the creation of new topic sections as well as subfiles for each major topic. This package is primarily made for myself and the use cases which I have but if somebody does manage to encounter this on the web then PR's are welcome. There is no guarantee that they will be accepted but if you have some code or an interesting idea you would like to contribute then I am all ears. Additionally, this code is GPL V3 licensed so feel free to fork it and modify it to suit your needs.
+
+More documentation to follow.

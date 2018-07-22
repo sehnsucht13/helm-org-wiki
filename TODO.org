@@ -1,0 +1,17 @@
+* Features
+** Create new section
+This command should have 2 flavours, it should let you create a new section anywhere in the wiki along with a starter file. Additionally, it should let you create a new article in the current section.
+** Traversal
+There should be 3 commands for traversal
+ - Index.org
+ - From the root of the wiki
+ - Current section
+
+** Links
+There should either be links to things inside of the file or a system must be implemented where we switch between articles. Need to research links to see how difficult it would be to implement.
+
+** Code blocks
+This problem has been solved.
+
+** Templates
+Add in the option for a basic template for export to be automatically added.
