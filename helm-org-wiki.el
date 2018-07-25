@@ -35,6 +35,12 @@
   (interactive)
   (helm-find-files-1 helm-org-wiki-directory))
 
+(defun helm-org-wiki-create-new-article (newArticleName)
+  "Create a new article in the same directory.  Requires that an article in the wiki is currently visited."
+  (interactive "sEnter article name: ")
+  (find-file (concat (file-name-directory (buffer-file-name))  newArticleName))
+  (save-buffer))
+
 (defun helm-org-wiki-rename-entry (NEW-NAME &rest save-on-rename)
   "Rename the current Wiki entry to NEW-NAME.  If SAVE-ON-RENAME is true then the buffer is saved as well."
   (interactive "sEnter a new file name ")
@@ -48,7 +54,7 @@
 (defun helm-org-wiki-emacs-lisp-block ()
   "Insert an Emacs-lisp block."
   (interactive)
-  (insert "#+BEGIN_SRC emacs-lisp")
+  (insert "#+BEGIN_SRC emacs-lisp :results output code")
   (org-return)
   (org-return)
   (insert "#+END_SRC")
@@ -58,7 +64,7 @@
 (defun helm-org-wiki-python-block ()
   "Insert a Python code block."
   (interactive)
-  (insert "#+BEGIN_SRC python")
+  (insert "#+BEGIN_SRC python :results output code")
   (org-return)
   (org-return)
   (insert "#+END_SRC")
@@ -68,7 +74,7 @@
 (defun helm-org-wiki-latex-block ()
   "Insert a Latex code block."
   (interactive)
-  (insert "#+BEGIN_SRC latex")
+  (insert "#+BEGIN_SRC latex :results output code")
   (org-return)
   (org-return)
   (insert "#+END_SRC")
@@ -78,7 +84,7 @@
 (defun helm-org-wiki-java-block ()
   "Insert a Java code block."
   (interactive)
-  (insert "#+BEGIN_SRC java")
+  (insert "#+BEGIN_SRC java :results output code")
   (org-return)
   (org-return)
   (insert "#+END_SRC")
@@ -88,7 +94,7 @@
 (defun helm-org-wiki-javascript-block ()
   "Insert a Javascript code block."
   (interactive)
-  (insert "#+BEGIN_SRC js")
+  (insert "#+BEGIN_SRC js :results output code")
   (org-return)
   (org-return)
   (insert "#+END_SRC")
@@ -98,7 +104,7 @@
 (defun helm-org-wiki-sh-block ()
   "Insert a Shell script code block."
   (interactive)
-  (insert "#+BEGIN_SRC sh")
+  (insert "#+BEGIN_SRC sh :results output code")
   (org-return)
   (org-return)
   (insert "#+END_SRC")
@@ -108,7 +114,7 @@
 (defun helm-org-wiki-haskell-block ()
   "Insert a Haskell code block."
   (interactive)
-  (insert "#+BEGIN_SRC haskell")
+  (insert "#+BEGIN_SRC haskell :results output code")
   (org-return)
   (org-return)
   (insert "#+END_SRC")
@@ -118,25 +124,27 @@
 (defun helm-org-wiki-C-block ()
   "Insert a C code block."
   (interactive)
-  (insert "#+BEGIN_SRC C")
+  (insert "#+BEGIN_SRC C :results output code")
   (org-return)
   (org-return)
   (insert "#+END_SRC")
   (previous-line 1))
+
 
 (defun helm-org-wiki-C++-block ()
   "Insert a C++ code block."
   (interactive)
-  (insert "#+BEGIN_SRC C++")
+  (insert "#+BEGIN_SRC C++ :results output code")
   (org-return)
   (org-return)
   (insert "#+END_SRC")
   (previous-line 1))
 
+
 (defun helm-org-wiki-lisp-block ()
   "Insert a Common Lisp code block."
   (interactive)
-  (insert "#+BEGIN_SRC lisp")
+  (insert "#+BEGIN_SRC lisp :results output code")
   (org-return)
   (org-return)
   (insert "#+END_SRC")
@@ -146,25 +154,27 @@
 (defun helm-org-wiki-rust-block ()
   "Insert a Rust code block.  Requires the ob-rust plugin available from MELPA."
   (interactive)
-  (insert "#+BEGIN_SRC rust")
+  (insert "#+BEGIN_SRC rust :results output code")
   (org-return)
   (org-return)
   (insert "#+END_SRC")
   (previous-line 1))
+
 
 (defun helm-org-wiki-go-block ()
   "Insert a Golang code block.  Requires the ob-go plugin available from MELPA."
   (interactive)
-  (insert "#+BEGIN_SRC go")
+  (insert "#+BEGIN_SRC go :results output code")
   (org-return)
   (org-return)
   (insert "#+END_SRC")
   (previous-line 1))
 
+
 (defun helm-org-wiki-typescript-block ()
   "Insert a Typescript code block.  Requires the ob-typescript plugin available from MELPA."
   (interactive)
-  (insert "#+BEGIN_SRC typescript")
+  (insert "#+BEGIN_SRC typescript :results output code")
   (org-return)
   (org-return)
   (insert "#+END_SRC")
