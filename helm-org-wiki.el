@@ -4,12 +4,12 @@
 (require 'helm)
 
 ;;; Code:
-(defcustom helm-org-wiki-directory "~/Wiki"
+(defcustom helm-org-wiki-directory "~/Wiki/"
   "This variable contains the path to the main folder which houses the wiki."
   :group 'helm-org-wiki
   :type 'string)
 
-(defcustom helm-org-wiki-index "~/Wiki/index.org"
+(defcustom helm-org-wiki-index "~/Wiki/Index.org"
   "Variable to hold the path to the wiki index."
   :group 'helm-org-wiki
   :type 'string)
@@ -30,22 +30,10 @@
   (interactive)
   (find-file helm-org-wiki-index))
 
-(defun helm-org-wiki--make-helm-src (DIR)
-  "Create the sources for the wiki index."
-  (let ((DIR-LIST (directory-files DIR)))
-	DIR-LIST
-	))
-
-(defun helm-org-wiki-create-new-section ()
-  "Create a new section into the wiki."
+(defun helm-org-wiki-walk-wiki ()
+  "Wrapper function for conveniance."
   (interactive)
-  (helm :sources
-		(helm-build-sync-source "*New Wiki Section Source*"
-		  :candidates (helm-org-wiki--make-helm-src helm-org-wiki-directory))
-		:buffer "*New Wiki Section*"))
-
-(defun helm-org-wiki-create-new-subsection ()
-  "Create a new subsection")
+  (helm-find-files-1 helm-org-wiki-directory))
 
 (defun helm-org-wiki-rename-entry (NEW-NAME &rest save-on-rename)
   "Rename the current Wiki entry to NEW-NAME.  If SAVE-ON-RENAME is true then the buffer is saved as well."
