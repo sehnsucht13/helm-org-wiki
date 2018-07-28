@@ -14,8 +14,13 @@
   :group 'helm-org-wiki
   :type 'string)
 
+(defcustom helm-org-wiki-source-block-options ":results output code"
+  "Contains the options that are put into the header of a new source block."
+  :group 'helm-org-wiki
+  :type 'string)
+
 (defun helm-org-wiki-create-new-wiki (WIKI-PATH)
-  "Create a new wiki directory along with an index."
+  "Create a new wiki directory along with an index in the location specified by WIKI-PATH."
   (interactive "DEnter path to wiki: ")
   (if (not (file-directory-p WIKI-PATH)) ;;Prevent overwriting a directory
 	  (progn
@@ -33,13 +38,16 @@
 (defun helm-org-wiki-walk-wiki ()
   "Wrapper function for conveniance."
   (interactive)
-  (helm-find-files-1 helm-org-wiki-directory))
+  (helm-find-files-1 helm-org-wiki-directory)
+  (helm-org-in-buffer-headings))
 
-(defun helm-org-wiki-create-new-article (newArticleName)
-  "Create a new article in the same directory.  Requires that an article in the wiki is currently visited."
+
+(defun helm-org-wiki-create-new-article (NEW-ARTICLE-NAME)
+  "Create a new article in the same directory which is named NEW-ARTICLE-NAME.  Requires that an article in the wiki is currently visited."
   (interactive "sEnter article name: ")
-  (find-file (concat (file-name-directory (buffer-file-name))  newArticleName))
+  (find-file (concat (file-name-directory (buffer-file-name))  NEW-ARTICLE-NAME))
   (save-buffer))
+
 
 (defun helm-org-wiki-rename-entry (NEW-NAME &rest save-on-rename)
   "Rename the current Wiki entry to NEW-NAME.  If SAVE-ON-RENAME is true then the buffer is saved as well."
@@ -50,11 +58,21 @@
   (if save-on-rename
 	  (save-current-buffer)))
 
+(defun helm-org-wiki-extract-subtree (NEW-NAME)
+  "Extract the subtree at point into a new file that is within the same subdirectory as the current visited wiki article.  File is saved as NEW-NAME."
+  (interactive "sEnter article name: ")
+  (let ((path (file-name-directory (buffer-file-name))))
+	(org-cut-subtree)
+	(with-temp-buffer
+	  (org-yank)
+	  (write-file (concat path NEW-NAME)))))
+
+
 ;;; Code blocks below
 (defun helm-org-wiki-emacs-lisp-block ()
   "Insert an Emacs-lisp block."
   (interactive)
-  (insert "#+BEGIN_SRC emacs-lisp :results output code")
+  (insert (concat "#+BEGIN_SRC emacs-lisp " helm-org-wiki-source-block-options))
   (org-return)
   (org-return)
   (insert "#+END_SRC")
@@ -64,7 +82,7 @@
 (defun helm-org-wiki-python-block ()
   "Insert a Python code block."
   (interactive)
-  (insert "#+BEGIN_SRC python :results output code")
+  (insert (concat "#+BEGIN_SRC python " helm-org-wiki-source-block-options))
   (org-return)
   (org-return)
   (insert "#+END_SRC")
@@ -74,7 +92,7 @@
 (defun helm-org-wiki-latex-block ()
   "Insert a Latex code block."
   (interactive)
-  (insert "#+BEGIN_SRC latex :results output code")
+  (insert (concat "#+BEGIN_SRC latex " helm-org-wiki-source-block-options))
   (org-return)
   (org-return)
   (insert "#+END_SRC")
@@ -84,7 +102,7 @@
 (defun helm-org-wiki-java-block ()
   "Insert a Java code block."
   (interactive)
-  (insert "#+BEGIN_SRC java :results output code")
+  (insert (concat "#+BEGIN_SRC java " helm-org-wiki-source-block-options))
   (org-return)
   (org-return)
   (insert "#+END_SRC")
@@ -94,7 +112,7 @@
 (defun helm-org-wiki-javascript-block ()
   "Insert a Javascript code block."
   (interactive)
-  (insert "#+BEGIN_SRC js :results output code")
+  (insert (concat "#+BEGIN_SRC js " helm-org-wiki-source-block-options))
   (org-return)
   (org-return)
   (insert "#+END_SRC")
@@ -104,7 +122,7 @@
 (defun helm-org-wiki-sh-block ()
   "Insert a Shell script code block."
   (interactive)
-  (insert "#+BEGIN_SRC sh :results output code")
+  (insert (concat "#+BEGIN_SRC sh " helm-org-wiki-source-block-options))
   (org-return)
   (org-return)
   (insert "#+END_SRC")
@@ -114,7 +132,7 @@
 (defun helm-org-wiki-haskell-block ()
   "Insert a Haskell code block."
   (interactive)
-  (insert "#+BEGIN_SRC haskell :results output code")
+  (insert (concat "#+BEGIN_SRC haskell " helm-org-wiki-source-block-options))
   (org-return)
   (org-return)
   (insert "#+END_SRC")
@@ -124,7 +142,7 @@
 (defun helm-org-wiki-C-block ()
   "Insert a C code block."
   (interactive)
-  (insert "#+BEGIN_SRC C :results output code")
+  (insert (concat "#+BEGIN_SRC C " helm-org-wiki-source-block-options))
   (org-return)
   (org-return)
   (insert "#+END_SRC")
@@ -134,17 +152,98 @@
 (defun helm-org-wiki-C++-block ()
   "Insert a C++ code block."
   (interactive)
-  (insert "#+BEGIN_SRC C++ :results output code")
+  (insert (concat "#+BEGIN_SRC C++ " helm-org-wiki-source-block-options))
+  (org-return)
+  (org-return)
+  (insert "#+END_SRC")
+  (previous-line 1))
+
+(defun helm-org-wiki-awk-block ()
+  "Insert a Awk code block."
+  (interactive)
+  (insert (concat "#+BEGIN_SRC awk " helm-org-wiki-source-block-options))
   (org-return)
   (org-return)
   (insert "#+END_SRC")
   (previous-line 1))
 
 
+(defun helm-org-wiki-clojure-block ()
+  "Insert a Clojure code block."
+  (interactive)
+  (insert (concat "#+BEGIN_SRC clojure " helm-org-wiki-source-block-options))
+  (org-return)
+  (org-return)
+  (insert "#+END_SRC")
+  (previous-line 1))
+
+
+(defun helm-org-wiki-R-block ()
+  "Insert an R code block."
+  (interactive)
+  (insert (concat "#+BEGIN_SRC R " helm-org-wiki-source-block-options))
+  (org-return)
+  (org-return)
+  (insert "#+END_SRC")
+  (previous-line 1))
+
+(defun helm-org-wiki-perl-block ()
+  "Insert a Perl code block."
+  (interactive)
+  (insert (concat "#+BEGIN_SRC perl " helm-org-wiki-source-block-options))
+  (org-return)
+  (org-return)
+  (insert "#+END_SRC")
+  (previous-line 1))
+
+(defun helm-org-wiki-Gnuplot-block ()
+  "Insert a Gnuplot code block."
+  (interactive)
+  (insert (concat "#+BEGIN_SRC gnuplot " helm-org-wiki-source-block-options))
+  (org-return)
+  (org-return)
+  (insert "#+END_SRC")
+  (previous-line 1))
+
+(defun helm-org-wiki-D-block ()
+  "Insert a D code block."
+  (interactive)
+  (insert (concat "#+BEGIN_SRC D " helm-org-wiki-source-block-options))
+  (org-return)
+  (org-return)
+  (insert "#+END_SRC")
+  (previous-line 1))
+
+(defun helm-org-wiki-ruby-block ()
+  "Insert a Ruby code block."
+  (interactive)
+  (insert (concat "#+BEGIN_SRC ruby " helm-org-wiki-source-block-options))
+  (org-return)
+  (org-return)
+  (insert "#+END_SRC")
+  (previous-line 1))
+
+(defun helm-org-wiki-sed-block ()
+  "Insert a Sed code block."
+  (interactive)
+  (insert (concat "#+BEGIN_SRC sed " helm-org-wiki-source-block-options))
+  (org-return)
+  (org-return)
+  (insert "#+END_SRC")
+  (previous-line 1))
+
+(defun helm-org-wiki-CSS-block ()
+  "Insert a CSS code block."
+  (interactive)
+  (insert (concat "#+BEGIN_SRC css " helm-org-wiki-source-block-options))
+  (org-return)
+  (org-return)
+  (insert "#+END_SRC")
+  (previous-line 1))
 (defun helm-org-wiki-lisp-block ()
   "Insert a Common Lisp code block."
   (interactive)
-  (insert "#+BEGIN_SRC lisp :results output code")
+  (insert (concat "#+BEGIN_SRC lisp " helm-org-wiki-source-block-options))
   (org-return)
   (org-return)
   (insert "#+END_SRC")
@@ -154,7 +253,7 @@
 (defun helm-org-wiki-rust-block ()
   "Insert a Rust code block.  Requires the ob-rust plugin available from MELPA."
   (interactive)
-  (insert "#+BEGIN_SRC rust :results output code")
+  (insert (concat "#+BEGIN_SRC rust " helm-org-wiki-source-block-options))
   (org-return)
   (org-return)
   (insert "#+END_SRC")
@@ -164,7 +263,7 @@
 (defun helm-org-wiki-go-block ()
   "Insert a Golang code block.  Requires the ob-go plugin available from MELPA."
   (interactive)
-  (insert "#+BEGIN_SRC go :results output code")
+  (insert (concat "#+BEGIN_SRC go " helm-org-wiki-source-block-options))
   (org-return)
   (org-return)
   (insert "#+END_SRC")
@@ -174,7 +273,7 @@
 (defun helm-org-wiki-typescript-block ()
   "Insert a Typescript code block.  Requires the ob-typescript plugin available from MELPA."
   (interactive)
-  (insert "#+BEGIN_SRC typescript :results output code")
+  (insert (concat "#+BEGIN_SRC typescript " helm-org-wiki-source-block-options))
   (org-return)
   (org-return)
   (insert "#+END_SRC")
