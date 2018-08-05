@@ -24,8 +24,10 @@
   :group 'helm-org-wiki
   :type 'string)
 
-(defcustom helm-org-wiki-new-book-template '("!" "New book" entry (file+headline helm-org-wiki-index helm-org-wiki-reading-list-heading) "* Hello \n %(org-insert-link)")
-  "Contains the \"org-capture\" template used to add a book to the helm-org-wiki reading list."
+
+(defcustom helm-org-wiki-new-book-template '("ADD-BOOK" "Books" plain (file+headline "~/Org/Agenda.org" "Current Reading List")
+                 "\n%(helm-org-wiki--get-org-link)")
+"Contains the \"org-capture\" template used to add a book to the helm-org-wiki reading list."
   :group 'helm-org-wiki
   :type 'list)
 
@@ -72,10 +74,21 @@
 	(org-kill-line)
 	(kill-current-buffer)))
 
+(defun helm-org-wiki--get-org-link ()
+  "Small helper function that grabs an \"org-mode\" link and return it as string."
+  (with-temp-buffer
+	(org-insert-link-global)
+	(beginning-of-line)
+	(kill-line))
+  (let ((kill-ring-pop-value (pop kill-ring)))
+	kill-ring-pop-value))
+
 (defun helm-org-wiki-add-book-to-reading-list ()
+  "Add a new book(or any file) to the reading list."
   (interactive)
   (push helm-org-wiki-new-book-template org-capture-templates)
-  (org-capture-string "" "!" )
+  (org-capture nil "ADD-BOOK")
+  (org-capture-finalize)
   (pop org-capture-templates))
 
 ;; (org-capture-string
