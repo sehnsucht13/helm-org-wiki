@@ -24,6 +24,11 @@
   :group 'helm-org-wiki
   :type 'string)
 
+(defcustom helm-org-wiki-new-book-template '("!" "New book" entry (file+headline helm-org-wiki-index helm-org-wiki-reading-list-heading) "* Hello \n %(org-insert-link)")
+  "Contains the \"org-capture\" template used to add a book to the helm-org-wiki reading list."
+  :group 'helm-org-wiki
+  :type 'list)
+
 (defun helm-org-wiki-create-new-wiki (WIKI-PATH)
   "Create a new wiki directory along with an index in the location specified by WIKI-PATH."
   (interactive "DEnter path to wiki: ")
@@ -51,11 +56,41 @@
 			(push (list (nth 2 links)) READING-LIST-NAMES)))
 		READING-LIST-NAMES)))
 
+(defun helm-org-wiki-open-book (candidate)
+  "This function opens the book selected by the user through the Helm menu provided.  CANDIDATE represents the book name that is to be opened."
+  (with-temp-buffer
+	(find-file helm-org-wiki-index)
+	(search-forward candidate)
+	(org-open-at-point)
+	(kill-current-buffer)))
+
+(defun helm-org-wiki-remove-book (candidate)
+	"Remove the selected book indicated by CANDIDATE from the reading list."
+  (with-temp-buffer
+	(find-file helm-org-wiki-index)
+	(search-forward candidate)
+	(org-kill-line)
+	(kill-current-buffer)))
+
+(defun helm-org-wiki-add-book-to-reading-list ()
+  (interactive)
+  (push helm-org-wiki-new-book-template org-capture-templates)
+  (org-capture-string "" "!" )
+  (pop org-capture-templates))
+
+;; (org-capture-string
+;;   "t" (string org-cap))
 (defun helm-org-wiki-open-reading-list ()
   "Open the reading list."
   (interactive)
   (helm :sources (helm-build-sync-source "Reading List"
-				   :candidates (helm-org-wiki-retrieve-reading-list))
+				   :candidates (helm-org-wiki-retrieve-reading-list)
+				   :action
+				   (helm-make-actions
+					"Open Book"
+					'helm-org-wiki-open-book
+					"Remove Book From List"
+					'helm-org-wiki-remove-book))
 		:buffer "*Reading List Buffer*"))
 
 (defun helm-org-wiki-open-index ()
@@ -67,7 +102,9 @@
   "Open a Helm buffer at the wiki root and walk through the wiki to the file you want to open."
   (interactive)
   (helm-find-files-1 helm-org-wiki-directory)
-  (helm-org-in-buffer-headings))
+  (with-current-buffer
+	  (if (not (= 0 (count-lines-page)))
+			   (helm-org-in-buffer-headings))))
 
 
 (defun helm-org-wiki-create-new-article (NEW-ARTICLE-NAME)
