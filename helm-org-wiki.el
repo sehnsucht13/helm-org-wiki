@@ -14,6 +14,11 @@
   :group 'helm-org-wiki
   :type 'string)
 
+(defcustom helm-org-wiki-reading-list-heading "Reading List"
+  "Variable which stores the name of the heading under which all org-links which correspond to a reading list item are stored."
+  :group 'helm-org-wiki
+  :type 'string)
+
 (defcustom helm-org-wiki-source-block-options ":results output code"
   "Contains the options that are put into the header of a new source block."
   :group 'helm-org-wiki
@@ -30,13 +35,36 @@
 		  (write-file (concat WIKI-PATH "/Index.org"))))
 	(message "This directory already exists")))
 
+(defun helm-org-wiki-retrieve-reading-list ()
+  "Retrieve the reading list from the wiki index."
+  (interactive)
+  (with-temp-buffer
+	(find-file helm-org-wiki-index)                   ;; Open the wiki index
+	(search-forward helm-org-wiki-reading-list-heading)
+	(org-copy-subtree)
+	(kill-current-buffer))
+	(with-temp-buffer
+	  (org-yank)
+	  (let ((READING-LIST-NAMES nil))
+		(org-element-map (org-element-parse-buffer) 'link
+		  (lambda (links)
+			(push (list (nth 2 links)) READING-LIST-NAMES)))
+		READING-LIST-NAMES)))
+
+(defun helm-org-wiki-open-reading-list ()
+  "Open the reading list."
+  (interactive)
+  (helm :sources (helm-build-sync-source "Reading List"
+				   :candidates (helm-org-wiki-retrieve-reading-list))
+		:buffer "*Reading List Buffer*"))
+
 (defun helm-org-wiki-open-index ()
   "Open the wiki index."
   (interactive)
   (find-file helm-org-wiki-index))
 
 (defun helm-org-wiki-walk-wiki ()
-  "Wrapper function for conveniance."
+  "Open a Helm buffer at the wiki root and walk through the wiki to the file you want to open."
   (interactive)
   (helm-find-files-1 helm-org-wiki-directory)
   (helm-org-in-buffer-headings))
