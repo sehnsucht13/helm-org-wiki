@@ -1,17 +1,16 @@
-* Features
-** Create new section
-This command should have 2 flavours, it should let you create a new section anywhere in the wiki along with a starter file. Additionally, it should let you create a new article in the current section.
-** Traversal
-There should be 3 commands for traversal
- - Index.org
- - From the root of the wiki
- - Current section
-
-** Links
-There should either be links to things inside of the file or a system must be implemented where we switch between articles. Need to research links to see how difficult it would be to implement.
-
-** Code blocks
-This problem has been solved.
-
-** Templates
-Add in the option for a basic template for export to be automatically added.
+* Features to Implement
+ - [X] Add Booklist feature
+   Let the user add, remove and visit a booklist made up of org-mode links which can easily be opened up through helm.
+ - [X] Add a function to browse the wiki
+ - [X] Create a function to extract subtree(s) into a new wiki article.
+ - [X] Implement a way to preset the arguments passed to a code block as it is created.
+ - [X] Create functions to insert source code blocks.
+ - [X] Create functions to create a new wiki.
+ - [X] Implement a function which creates a new article in the current subfolder
+ - [X] Implement function to rename entry.
+ - [X] Implement a function to open the index of the current wiki.
+ - [ ] Add org capture template which is used to update the index when a new article is created.
+ - [ ] Support multiple wiki roots
+   The user should be able to access multiple wiki's with different roots and select which one should be explored.
+ - [ ] Limit some of the code blocks which require external packages from being loaded if these packages are not installed.
+ - [ ] Add org-structure template expansions. Make them be enabled only by the user so they are not loaded in automatically.

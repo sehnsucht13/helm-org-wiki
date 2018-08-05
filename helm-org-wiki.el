@@ -25,12 +25,13 @@
   :type 'string)
 
 
-(defcustom helm-org-wiki-new-book-template '("ADD-BOOK" "Books" plain (file+headline "~/Org/Agenda.org" "Current Reading List")
+(defcustom helm-org-wiki-new-book-template '("ADD-BOOK" "Books" plain (file+headline helm-org-wiki-index "Reading List")
                  "\n%(helm-org-wiki--get-org-link)")
 "Contains the \"org-capture\" template used to add a book to the helm-org-wiki reading list."
   :group 'helm-org-wiki
   :type 'list)
 
+;; General Wiki management functions
 (defun helm-org-wiki-create-new-wiki (WIKI-PATH)
   "Create a new wiki directory along with an index in the location specified by WIKI-PATH."
   (interactive "DEnter path to wiki: ")
@@ -42,6 +43,52 @@
 		  (write-file (concat WIKI-PATH "/Index.org"))))
 	(message "This directory already exists")))
 
+(defun helm-org-wiki-open-index ()
+  "Open the wiki index."
+  (interactive)
+  (find-file helm-org-wiki-index))
+
+(defun helm-org-wiki-walk-wiki ()
+  "Open a Helm buffer at the wiki root and walk through the wiki to the file you want to open."
+  (interactive)
+  (helm-find-files-1 helm-org-wiki-directory)
+  (with-current-buffer
+	  (if (not (= 0 (buffer-size)))
+			   (helm-org-in-buffer-headings))))
+
+
+(defun helm-org-wiki-create-new-article (NEW-ARTICLE-NAME)
+  "Create a new article in the same directory which is named NEW-ARTICLE-NAME.  Requires that an article in the wiki is currently visited."
+  (interactive "sEnter article name: ")
+  (find-file (concat (file-name-directory (buffer-file-name))  NEW-ARTICLE-NAME))
+  (save-buffer))
+
+
+(defun helm-org-wiki-rename-entry (NEW-NAME &rest save-on-rename)
+  "Rename the current Wiki entry to NEW-NAME.  If SAVE-ON-RENAME is true then the buffer is saved as well."
+  (interactive "sEnter a new file name ")
+  (rename-file (buffer-file-name) NEW-NAME)
+  (rename-buffer NEW-NAME)
+  (set-visited-file-name NEW-NAME)
+  (if save-on-rename
+	  (save-current-buffer)))
+
+(defun helm-org-wiki-extract-subtree (NEW-NAME)
+  "Extract the subtree at point into a new file that is within the same subdirectory as the current visited wiki article.  File is saved as NEW-NAME."
+  (interactive "sEnter article name: ")
+  (let ((path (file-name-directory (buffer-file-name))))
+	(org-cut-subtree)
+	(with-temp-buffer
+	  (org-yank)
+	  (write-file (concat path NEW-NAME)))))
+
+;; Reading list functions below
+
+;;This function is kind of a hack and I hope there might be a better way to implement this in the future.
+;; The current wiki index is opened up in a temp buffer, then a search forward is done for the reading list heading
+;; and as soon as this is located, the subtree and everything in it is copied and stored in the killring.
+;; From there, another temp buffer is made and the subtree is yanked there. After this, a lambda function is mapped
+;; on each element of the subtree and the link descriptions are extracted and returned as a list.
 (defun helm-org-wiki-retrieve-reading-list ()
   "Retrieve the reading list from the wiki index."
   (interactive)
@@ -58,6 +105,7 @@
 			(push (list (nth 2 links)) READING-LIST-NAMES)))
 		READING-LIST-NAMES)))
 
+;; This function opens up the selected book. It simply takes the name(that is the description of the org-mode link made by the user) and searches forward for it and opens it. The BIG drawback is that the names of the links have to be unique otherwise the book might not be opened reliably.
 (defun helm-org-wiki-open-book (candidate)
   "This function opens the book selected by the user through the Helm menu provided.  CANDIDATE represents the book name that is to be opened."
   (with-temp-buffer
@@ -91,8 +139,6 @@
   (org-capture-finalize)
   (pop org-capture-templates))
 
-;; (org-capture-string
-;;   "t" (string org-cap))
 (defun helm-org-wiki-open-reading-list ()
   "Open the reading list."
   (interactive)
@@ -105,46 +151,6 @@
 					"Remove Book From List"
 					'helm-org-wiki-remove-book))
 		:buffer "*Reading List Buffer*"))
-
-(defun helm-org-wiki-open-index ()
-  "Open the wiki index."
-  (interactive)
-  (find-file helm-org-wiki-index))
-
-(defun helm-org-wiki-walk-wiki ()
-  "Open a Helm buffer at the wiki root and walk through the wiki to the file you want to open."
-  (interactive)
-  (helm-find-files-1 helm-org-wiki-directory)
-  (with-current-buffer
-	  (if (not (= 0 (count-lines-page)))
-			   (helm-org-in-buffer-headings))))
-
-
-(defun helm-org-wiki-create-new-article (NEW-ARTICLE-NAME)
-  "Create a new article in the same directory which is named NEW-ARTICLE-NAME.  Requires that an article in the wiki is currently visited."
-  (interactive "sEnter article name: ")
-  (find-file (concat (file-name-directory (buffer-file-name))  NEW-ARTICLE-NAME))
-  (save-buffer))
-
-
-(defun helm-org-wiki-rename-entry (NEW-NAME &rest save-on-rename)
-  "Rename the current Wiki entry to NEW-NAME.  If SAVE-ON-RENAME is true then the buffer is saved as well."
-  (interactive "sEnter a new file name ")
-  (rename-file (buffer-file-name) NEW-NAME)
-  (rename-buffer NEW-NAME)
-  (set-visited-file-name NEW-NAME)
-  (if save-on-rename
-	  (save-current-buffer)))
-
-(defun helm-org-wiki-extract-subtree (NEW-NAME)
-  "Extract the subtree at point into a new file that is within the same subdirectory as the current visited wiki article.  File is saved as NEW-NAME."
-  (interactive "sEnter article name: ")
-  (let ((path (file-name-directory (buffer-file-name))))
-	(org-cut-subtree)
-	(with-temp-buffer
-	  (org-yank)
-	  (write-file (concat path NEW-NAME)))))
-
 
 ;;; Code blocks below
 (defun helm-org-wiki-emacs-lisp-block ()
