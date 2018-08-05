@@ -31,6 +31,11 @@
   :group 'helm-org-wiki
   :type 'list)
 
+(defcustom helm-org-wiki-enable-org-templates t
+  "Enable the loading of the org templates for the source blocks."
+  :group 'helm-org-wiki
+  :type 'boolean)
+
 ;; General Wiki management functions
 (defun helm-org-wiki-create-new-wiki (WIKI-PATH)
   "Create a new wiki directory along with an index in the location specified by WIKI-PATH."
@@ -122,6 +127,14 @@
 	(org-kill-line)
 	(kill-current-buffer)))
 
+(defun helm-org-wiki-rename-book (candidate)
+	"Edit the link named CANDIDATE to change its description or path."
+  (with-temp-buffer
+	(find-file helm-org-wiki-index)
+	(search-forward candidate)
+	(org-insert-link)
+	(kill-current-buffer)))
+
 (defun helm-org-wiki--get-org-link ()
   "Small helper function that grabs an \"org-mode\" link and return it as string."
   (with-temp-buffer
@@ -148,6 +161,8 @@
 				   (helm-make-actions
 					"Open Book"
 					'helm-org-wiki-open-book
+					"Edit Book Link"
+					'helm-org-wiki-rename-book
 					"Remove Book From List"
 					'helm-org-wiki-remove-book))
 		:buffer "*Reading List Buffer*"))
