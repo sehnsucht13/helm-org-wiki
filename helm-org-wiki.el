@@ -123,8 +123,10 @@
 	"Remove the selected book indicated by CANDIDATE from the reading list."
   (with-temp-buffer
 	(find-file helm-org-wiki-index)
+	(outline-show-all)
 	(search-forward candidate)
-	(org-kill-line)
+	(kill-whole-line)
+	(save-buffer)
 	(kill-current-buffer)))
 
 (defun helm-org-wiki-rename-book (candidate)
@@ -133,6 +135,7 @@
 	(find-file helm-org-wiki-index)
 	(search-forward candidate)
 	(org-insert-link)
+	(save-buffer)
 	(kill-current-buffer)))
 
 (defun helm-org-wiki--get-org-link ()
@@ -164,7 +167,9 @@
 					"Edit Book Link"
 					'helm-org-wiki-rename-book
 					"Remove Book From List"
-					'helm-org-wiki-remove-book))
+					'helm-org-wiki-remove-book
+					"Add a Book To List"
+					'helm-org-wiki-add-book-to-reading-list))
 		:buffer "*Reading List Buffer*"))
 
 ;;; Code blocks below
