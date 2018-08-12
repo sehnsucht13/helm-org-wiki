@@ -4,13 +4,13 @@
 (require 'helm)
 
 ;;; Code:
-(defcustom helm-org-wiki-directory "~/Wiki/"
-  "This variable contains the path to the main folder which houses the wiki."
+(defcustom helm-org-wiki-directories '(("Personal Wiki" . "~/Wiki/"))
+  "This variable contains the names and paths to the main folders which houses each wiki."
   :group 'helm-org-wiki
-  :type 'string)
+  :type 'alist)
 
 (defcustom helm-org-wiki-index "~/Wiki/Index.org"
-  "Variable to hold the path to the wiki index."
+  "Holds the path to the wiki index."
   :group 'helm-org-wiki
   :type 'string)
 
@@ -45,6 +45,8 @@
 		(make-directory WIKI-PATH)
 		(with-temp-buffer
 		  (insert "* Wiki Index")
+		  (newline)
+		  (insert (concat "* " helm-org-wiki-reading-list-heading))
 		  (write-file (concat WIKI-PATH "/Index.org"))))
 	(message "This directory already exists")))
 
@@ -53,14 +55,30 @@
   (interactive)
   (find-file helm-org-wiki-index))
 
-(defun helm-org-wiki-walk-wiki ()
-  "Open a Helm buffer at the wiki root and walk through the wiki to the file you want to open."
-  (interactive)
-  (helm-find-files-1 helm-org-wiki-directory)
-  (with-current-buffer
-	  (if (not (= 0 (buffer-size)))
-			   (helm-org-in-buffer-headings))))
+(defun helm-org-wiki--visit-root (wikiName)
+  "Visit the wiki associated with the name WIKINAME."
+  (helm-find-files-1 (cdr(assoc-string wikiName helm-org-wiki-directories))))
 
+(defun helm-org-wiki--delete-wiki (wikiName)
+  "Delete the wiki associated with the name WIKINAME."
+  (delete-directory (cdr (assoc-string wikiName helm-org-wiki-directories))))
+  
+(defun helm-org-wiki-walk-wiki ()
+  "Open a Helm buffer at the wiki root and walk through the wiki to the file you want to open.  If there are multiple roots, it displays a Helm buffer containing the wiki names and let the user choose which one to open."
+  (interactive)
+  (let ((headingList (mapcar 'car helm-org-wiki-directories)))
+	(if (= 1 (length headingList))
+		(helm-find-files-1 (alist-get (car headingList) helm-org-wiki-directories))
+  (progn
+	(helm :sources (helm-build-sync-source "Wiki List"
+					 :candidates headingList
+					 :action
+					 (helm-make-actions
+					  "Visit Wiki"
+					  'helm-org-wiki--visit-root
+					  "Delete Wiki"
+					  ))
+		  :buffer "*Wiki Root Buffer*")))))
 
 (defun helm-org-wiki-create-new-article (NEW-ARTICLE-NAME)
   "Create a new article in the same directory which is named NEW-ARTICLE-NAME.  Requires that an article in the wiki is currently visited."
@@ -156,7 +174,7 @@
   (pop org-capture-templates))
 
 (defun helm-org-wiki-open-reading-list ()
-  "Open the reading list."
+  "Open a helm buffer which displays the reading list."
   (interactive)
   (helm :sources (helm-build-sync-source "Reading List"
 				   :candidates (helm-org-wiki-retrieve-reading-list)
