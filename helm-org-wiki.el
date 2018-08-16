@@ -9,7 +9,7 @@
   :group 'helm-org-wiki
   :type 'alist)
 
-(defcustom helm-org-wiki-index "~/Wiki/Index.org"
+(defcustom helm-org-wiki-index-name"~/Wiki/Index.org"
   "Holds the path to the wiki index."
   :group 'helm-org-wiki
   :type 'string)
@@ -18,12 +18,6 @@
   "Variable which stores the name of the heading under which all org-links which correspond to a reading list item are stored."
   :group 'helm-org-wiki
   :type 'string)
-
-(defcustom helm-org-wiki-source-block-options ":results output code"
-  "Contains the options that are put into the header of a new source block."
-  :group 'helm-org-wiki
-  :type 'string)
-
 
 (defcustom helm-org-wiki-new-book-template '("ADD-BOOK" "Books" plain (file+headline helm-org-wiki-index "Reading List")
                  "\n%(helm-org-wiki--get-org-link)")
@@ -36,6 +30,15 @@
   :group 'helm-org-wiki
   :type 'boolean)
 
+(defcustom helm-org-wiki-load-source-blocks nil
+  "Enable the loading of source block functions."
+  :group 'helm-org-wiki
+  :type 'boolean)
+
+(defcustom helm-org-wiki-source-block-options ":results output code"
+  "Contains the options that are put into the header of a new source block."
+  :group 'helm-org-wiki
+  :type 'string)
 ;; General Wiki management functions
 (defun helm-org-wiki-create-new-wiki (WIKI-PATH)
   "Create a new wiki directory along with an index in the location specified by WIKI-PATH."
@@ -77,6 +80,7 @@
 					  "Visit Wiki"
 					  'helm-org-wiki--visit-root
 					  "Delete Wiki"
+					  'helm-org-wiki--delete-wiki
 					  ))
 		  :buffer "*Wiki Root Buffer*")))))
 
@@ -190,38 +194,39 @@
 					'helm-org-wiki-add-book-to-reading-list))
 		:buffer "*Reading List Buffer*"))
 
-;;; Code blocks below
-(defun helm-org-wiki-emacs-lisp-block ()
-  "Insert an Emacs-lisp block."
-  (interactive)
-  (insert (concat "#+BEGIN_SRC emacs-lisp " helm-org-wiki-source-block-options))
-  (org-return)
-  (org-return)
-  (insert "#+END_SRC")
-  (previous-line 1))
+(if helm-org-wiki-load-source-blocks
+	(progn
+	  (defun helm-org-wiki-emacs-lisp-block ()
+		"Insert an Emacs-lisp block."
+		(interactive)
+		(insert (concat "#+BEGIN_SRC emacs-lisp " helm-org-wiki-source-block-options))
+		(org-return)
+		(org-return)
+		(insert "#+END_SRC")
+		(previous-line 1))
 
 
-(defun helm-org-wiki-python-block ()
-  "Insert a Python code block."
-  (interactive)
-  (insert (concat "#+BEGIN_SRC python " helm-org-wiki-source-block-options))
-  (org-return)
-  (org-return)
-  (insert "#+END_SRC")
-  (previous-line 1))
-
-
-(defun helm-org-wiki-latex-block ()
-  "Insert a Latex code block."
-  (interactive)
-  (insert (concat "#+BEGIN_SRC latex " helm-org-wiki-source-block-options))
-  (org-return)
-  (org-return)
-  (insert "#+END_SRC")
-  (previous-line 1))
-
-
-(defun helm-org-wiki-java-block ()
+	  (defun helm-org-wiki-python-block ()
+		"Insert a Python code block."
+		(interactive)
+		(insert (concat "#+BEGIN_SRC python " helm-org-wiki-source-block-options))
+		(org-return)
+		(org-return)
+		(insert "#+END_SRC")
+		(previous-line 1))
+	  
+	  
+	  (defun helm-org-wiki-latex-block ()
+		"Insert a Latex code block."
+		(interactive)
+		(insert (concat "#+BEGIN_SRC latex " helm-org-wiki-source-block-options))
+		(org-return)
+		(org-return)
+		(insert "#+END_SRC")
+		(previous-line 1))
+	  
+	  
+	  (defun helm-org-wiki-java-block ()
   "Insert a Java code block."
   (interactive)
   (insert (concat "#+BEGIN_SRC java " helm-org-wiki-source-block-options))
@@ -399,7 +404,7 @@
   (org-return)
   (org-return)
   (insert "#+END_SRC")
-  (previous-line 1))
+  (previous-line 1))))
 
 (provide 'helm-org-wiki)
 ;;; helm-org-wiki.el ends here
