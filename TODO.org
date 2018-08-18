@@ -11,8 +11,8 @@
  - [X] Implement a function to open the index of the current wiki.
  - [X] Support exploring multiple wiki roots
    The user should be able to access multiple wiki's with different roots and select which one should be explored.
+ - [X] Load code blocks only if the user wants to.(done for speedup)
  - [ ] Add org capture template which is used to update the index when a new article is created.
  - [ ] Support multiple reading lists in different roots
  - [ ] Add org-structure template expansions. Make them be enabled only by the user so they are not loaded in automatically.
- - [ ] Create a hydra 
- - [X] Load code blocks only if the user wants to.(done for speedup)
+ - [ ] Create a hydra

@@ -4,12 +4,12 @@
 (require 'helm)
 
 ;;; Code:
-(defcustom helm-org-wiki-directories '(("Personal Wiki" . "~/Wiki/"))
+(defcustom helm-org-wiki-directories '(("Personal Wiki" . "~/Wiki/") ("Anonther wiki" . "~/.emacs.d"))
   "This variable contains the names and paths to the main folders which houses each wiki."
   :group 'helm-org-wiki
   :type 'alist)
 
-(defcustom helm-org-wiki-index-name"~/Wiki/Index.org"
+(defcustom helm-org-wiki-index"~/Wiki/Index.org"
   "Holds the path to the wiki index."
   :group 'helm-org-wiki
   :type 'string)
@@ -39,7 +39,16 @@
   "Contains the options that are put into the header of a new source block."
   :group 'helm-org-wiki
   :type 'string)
+
 ;; General Wiki management functions
+(defun helm-org-wiki--helm-or-action (singleAction multipleAction)
+  "Execute SINGLEACTION if there is only one wiki or MULTIPLEACTION if there are two or more wiki directiories."
+  (interactive)
+  (let ((headingList (mapcar 'car helm-org-wiki-directories)))
+	(if (= 1 (length headingList))
+		(funcall singleAction headingList)
+	  (funcall multipleAction headingList))))
+
 (defun helm-org-wiki-create-new-wiki (WIKI-PATH)
   "Create a new wiki directory along with an index in the location specified by WIKI-PATH."
   (interactive "DEnter path to wiki: ")
@@ -66,24 +75,23 @@
   "Delete the wiki associated with the name WIKINAME."
   (delete-directory (cdr (assoc-string wikiName helm-org-wiki-directories))))
   
-(defun helm-org-wiki-walk-wiki ()
-  "Open a Helm buffer at the wiki root and walk through the wiki to the file you want to open.  If there are multiple roots, it displays a Helm buffer containing the wiki names and let the user choose which one to open."
-  (interactive)
-  (let ((headingList (mapcar 'car helm-org-wiki-directories)))
-	(if (= 1 (length headingList))
-		(helm-find-files-1 (alist-get (car headingList) helm-org-wiki-directories))
-  (progn
-	(helm :sources (helm-build-sync-source "Wiki List"
-					 :candidates headingList
-					 :action
-					 (helm-make-actions
-					  "Visit Wiki"
-					  'helm-org-wiki--visit-root
-					  "Delete Wiki"
-					  'helm-org-wiki--delete-wiki
-					  ))
-		  :buffer "*Wiki Root Buffer*")))))
+(defun helm-org-wiki-visit-single-wiki (candidates)
+  "Visit the wiki with path CANDIDATES when there is a only a single root."
+(helm-find-files-1 (alist-get (car candidates) helm-org-wiki-directories)))
 
+(defun make-wiki-action-buffer (candidates)
+  "Create a helm buffer containing CANDIDATES when there is more than one wiki root available."
+  (helm :sources (helm-build-sync-source "Wiki List"
+				   :candidates candidates
+				   :action
+				   (helm-make-actions
+					"Visit Wiki"
+					'helm-org-wiki--visit-root
+					"Delete Wiki"
+					'helm-org-wiki--delete-wiki
+					))
+		:buffer "*Wiki Root Buffer*"))
+  
 (defun helm-org-wiki-create-new-article (NEW-ARTICLE-NAME)
   "Create a new article in the same directory which is named NEW-ARTICLE-NAME.  Requires that an article in the wiki is currently visited."
   (interactive "sEnter article name: ")
