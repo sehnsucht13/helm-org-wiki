@@ -16,3 +16,10 @@
  - [ ] Support multiple reading lists in different roots
  - [ ] Add org-structure template expansions. Make them be enabled only by the user so they are not loaded in automatically.
  - [ ] Create a hydra
+ - [ ] Create a new walking function(use existing helm functions for some actions)
+ - [ ] Create wrapper functions for helm-org-rifle
+ - [ ] Rework reading list functions to handle multiple roots(not working right now!)
+ - [ ] Create a helm interface for creating new articles in the wiki.
+ - [ ] Create a function to compile an entire directory/directories into pdf.
+ - [ ] Add more comments to source code
+ - [ ] Create a helm interface for the code block functions
