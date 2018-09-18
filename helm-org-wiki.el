@@ -4,7 +4,7 @@
 (require 'helm)
 
 ;;; Code:
-(defcustom helm-org-wiki-directories '(("Personal Wiki" . "~/Wiki/") ("Anonther wiki" . "~/.emacs.d"))
+(defcustom helm-org-wiki-directories '(("Personal Wiki" . "~/Wiki/"))
   "This variable contains the names and paths to the main folders which houses each wiki."
   :group 'helm-org-wiki
   :type 'alist)
@@ -30,15 +30,25 @@
   :group 'helm-org-wiki
   :type 'boolean)
 
-(defcustom helm-org-wiki-load-source-blocks nil
+(defcustom helm-org-wiki-load-source-blocks t
   "Enable the loading of source block functions."
   :group 'helm-org-wiki
   :type 'boolean)
 
-(defcustom helm-org-wiki-source-block-options ":results output code"
+(defcustom helm-org-wiki-source-block-options ":results output raw"
   "Contains the options that are put into the header of a new source block."
   :group 'helm-org-wiki
   :type 'string)
+
+(defcustom helm-org-wiki-edit-source-block-on-creation t
+  "Instantly enter special edit mode for the newly created source block."
+  :group 'helm-org-wiki
+  :type 'string)
+
+(defcustom helm-org-wiki-screenshot-wait-time 5
+  "Seconds to wait until the screenshot application is called."
+  :group 'helm-org-wiki
+  :type 'number)
 
 ;; General Wiki management functions
 (defun helm-org-wiki--helm-or-action (singleAction multipleAction)
@@ -61,6 +71,31 @@
 		  (insert (concat "* " helm-org-wiki-reading-list-heading))
 		  (write-file (concat WIKI-PATH "/Index.org"))))
 	(message "This directory already exists")))
+;;; Test Area
+;(defun helm-org-wiki-walk-wiki (folder)
+ ; (helm
+ ;:sources (helm-build-sync-source "name"
+;			:candidates folder
+			;; :candidate-transformer (lambda (candidates)
+			;; 						 (cl-loop for c in candidates
+;			;; 								  collect (file-name-nondirectory c)))
+;			:action (helm-make-actions
+;					 "Open Folder"
+;					 'helm-org-wiki-walk-wiki))
+; :resume nil
+; :buffer "*helm-org-wiki*"))
+
+;(defun helm-org-wiki--make-dir-list (folderName)
+;  (let ((contents (directory-files folderName))
+;		(fileAlist '()))
+;	(cl-loop for file in contents
+;			 (push (list (file-name-nondirectory file)  file))
+;			 finally return fileAlist)))
+;
+;(helm-org-wiki--make-dir-list "~/Wiki")
+
+;(defclass mystuff (helm-source-ffiles)
+;;; End test area
 
 (defun helm-org-wiki-open-index ()
   "Open the wiki index."
@@ -177,7 +212,7 @@
   (let ((kill-ring-pop-value (pop kill-ring)))
 	kill-ring-pop-value))
 
-(defun helm-org-wiki-add-book-to-reading-list ()
+(defun helm-org-wiki-add-book-to-reading-list (&rest candidate)
   "Add a new book(or any file) to the reading list."
   (interactive)
   (push helm-org-wiki-new-book-template org-capture-templates)
@@ -200,58 +235,70 @@
 					'helm-org-wiki-remove-book
 					"Add a Book To List"
 					'helm-org-wiki-add-book-to-reading-list))
+		:resume nil
 		:buffer "*Reading List Buffer*"))
 
 (if helm-org-wiki-load-source-blocks
-	(progn
-	  (defun helm-org-wiki-emacs-lisp-block ()
-		"Insert an Emacs-lisp block."
-		(interactive)
-		(insert (concat "#+BEGIN_SRC emacs-lisp " helm-org-wiki-source-block-options))
-		(org-return)
-		(org-return)
-		(insert "#+END_SRC")
-		(previous-line 1))
+(progn
+(defun helm-org-wiki-emacs-lisp-block ()
+"Insert an Emacs-lisp block."
+(interactive)
+(insert (concat "#+BEGIN_SRC emacs-lisp " helm-org-wiki-source-block-options))
+(org-return)
+(org-return)
+(insert "#+END_SRC")
+(previous-line 1)
+(if helm-org-wiki-edit-source-block-on-creation
+	(org-edit-src-code))
+)
 
 
-	  (defun helm-org-wiki-python-block ()
-		"Insert a Python code block."
-		(interactive)
-		(insert (concat "#+BEGIN_SRC python " helm-org-wiki-source-block-options))
-		(org-return)
-		(org-return)
-		(insert "#+END_SRC")
-		(previous-line 1))
-	  
-	  
-	  (defun helm-org-wiki-latex-block ()
-		"Insert a Latex code block."
-		(interactive)
-		(insert (concat "#+BEGIN_SRC latex " helm-org-wiki-source-block-options))
-		(org-return)
-		(org-return)
-		(insert "#+END_SRC")
-		(previous-line 1))
-	  
-	  
-	  (defun helm-org-wiki-java-block ()
-  "Insert a Java code block."
-  (interactive)
-  (insert (concat "#+BEGIN_SRC java " helm-org-wiki-source-block-options))
-  (org-return)
-  (org-return)
-  (insert "#+END_SRC")
-  (previous-line 1))
+(defun helm-org-wiki-python-block ()
+"Insert a Python code block."
+(interactive)
+(insert (concat "#+BEGIN_SRC python " helm-org-wiki-source-block-options))
+(org-return)
+(org-return)
+(insert "#+END_SRC")
+(previous-line 1)
+(if helm-org-wiki-edit-source-block-on-creation
+	(org-edit-src-code)))
+
+
+(defun helm-org-wiki-latex-block ()
+"Insert a Latex code block."
+(interactive)
+(insert (concat "#+BEGIN_SRC latex " helm-org-wiki-source-block-options))
+(org-return)
+(org-return)
+(insert "#+END_SRC")
+(previous-line 1)
+(if helm-org-wiki-edit-source-block-on-creation
+	(org-edit-src-code)))
+
+
+(defun helm-org-wiki-java-block ()
+"Insert a Java code block."
+(interactive)
+(insert (concat "#+BEGIN_SRC java " helm-org-wiki-source-block-options))
+(org-return)
+(org-return)
+(insert "#+END_SRC")
+(previous-line 1)
+(if helm-org-wiki-edit-source-block-on-creation
+	(org-edit-src-code)))
 
 
 (defun helm-org-wiki-javascript-block ()
-  "Insert a Javascript code block."
-  (interactive)
-  (insert (concat "#+BEGIN_SRC js " helm-org-wiki-source-block-options))
-  (org-return)
-  (org-return)
-  (insert "#+END_SRC")
-  (previous-line 1))
+"Insert a Javascript code block."
+(interactive)
+(insert (concat "#+BEGIN_SRC js " helm-org-wiki-source-block-options))
+(org-return)
+(org-return)
+(insert "#+END_SRC")
+(previous-line 1)
+(if helm-org-wiki-edit-source-block-on-creation
+	(org-edit-src-code)))
 
 
 (defun helm-org-wiki-sh-block ()
@@ -261,7 +308,9 @@
   (org-return)
   (org-return)
   (insert "#+END_SRC")
-  (previous-line 1))
+  (previous-line 1)
+  (if helm-org-wiki-edit-source-block-on-creation
+	  (org-edit-src-code)))
 
 
 (defun helm-org-wiki-haskell-block ()
@@ -271,8 +320,9 @@
   (org-return)
   (org-return)
   (insert "#+END_SRC")
-  (previous-line 1))
-
+  (previous-line 1)
+  (if helm-org-wiki-edit-source-block-on-creation
+	  (org-edit-src-code)))
 
 (defun helm-org-wiki-C-block ()
   "Insert a C code block."
@@ -281,7 +331,9 @@
   (org-return)
   (org-return)
   (insert "#+END_SRC")
-  (previous-line 1))
+  (previous-line 1)
+  (if helm-org-wiki-edit-source-block-on-creation
+	  (org-edit-src-code)))
 
 
 (defun helm-org-wiki-C++-block ()
@@ -291,7 +343,9 @@
   (org-return)
   (org-return)
   (insert "#+END_SRC")
-  (previous-line 1))
+  (previous-line 1)
+  (if helm-org-wiki-edit-source-block-on-creation
+	  (org-edit-src-code)))
 
 (defun helm-org-wiki-awk-block ()
   "Insert a Awk code block."
@@ -300,7 +354,9 @@
   (org-return)
   (org-return)
   (insert "#+END_SRC")
-  (previous-line 1))
+  (previous-line 1)
+  (if helm-org-wiki-edit-source-block-on-creation
+	  (org-edit-src-code)))
 
 
 (defun helm-org-wiki-clojure-block ()
@@ -310,7 +366,9 @@
   (org-return)
   (org-return)
   (insert "#+END_SRC")
-  (previous-line 1))
+  (previous-line 1)
+  (if helm-org-wiki-edit-source-block-on-creation
+			(org-edit-src-code)))
 
 
 (defun helm-org-wiki-R-block ()
@@ -320,7 +378,9 @@
   (org-return)
   (org-return)
   (insert "#+END_SRC")
-  (previous-line 1))
+  (previous-line 1)
+  (if helm-org-wiki-edit-source-block-on-creation
+			(org-edit-src-code)))
 
 (defun helm-org-wiki-perl-block ()
   "Insert a Perl code block."
@@ -329,7 +389,9 @@
   (org-return)
   (org-return)
   (insert "#+END_SRC")
-  (previous-line 1))
+  (previous-line 1)
+  (if helm-org-wiki-edit-source-block-on-creation
+			(org-edit-src-code)))
 
 (defun helm-org-wiki-Gnuplot-block ()
   "Insert a Gnuplot code block."
@@ -338,7 +400,9 @@
   (org-return)
   (org-return)
   (insert "#+END_SRC")
-  (previous-line 1))
+  (previous-line 1)
+  (if helm-org-wiki-edit-source-block-on-creation
+			(org-edit-src-code)))
 
 (defun helm-org-wiki-D-block ()
   "Insert a D code block."
@@ -347,7 +411,9 @@
   (org-return)
   (org-return)
   (insert "#+END_SRC")
-  (previous-line 1))
+  (previous-line 1)
+  (if helm-org-wiki-edit-source-block-on-creation
+			(org-edit-src-code)))
 
 (defun helm-org-wiki-ruby-block ()
   "Insert a Ruby code block."
@@ -356,7 +422,9 @@
   (org-return)
   (org-return)
   (insert "#+END_SRC")
-  (previous-line 1))
+  (previous-line 1)
+  (if helm-org-wiki-edit-source-block-on-creation
+			(org-edit-src-code)))
 
 (defun helm-org-wiki-sed-block ()
   "Insert a Sed code block."
@@ -365,7 +433,9 @@
   (org-return)
   (org-return)
   (insert "#+END_SRC")
-  (previous-line 1))
+  (previous-line 1)
+  (if helm-org-wiki-edit-source-block-on-creation
+			(org-edit-src-code)))
 
 (defun helm-org-wiki-CSS-block ()
   "Insert a CSS code block."
@@ -374,7 +444,10 @@
   (org-return)
   (org-return)
   (insert "#+END_SRC")
-  (previous-line 1))
+  (previous-line 1)
+  (if helm-org-wiki-edit-source-block-on-creation
+			(org-edit-src-code)))
+
 (defun helm-org-wiki-lisp-block ()
   "Insert a Common Lisp code block."
   (interactive)
@@ -382,37 +455,49 @@
   (org-return)
   (org-return)
   (insert "#+END_SRC")
-  (previous-line 1))
+  (previous-line 1)
+  (if helm-org-wiki-edit-source-block-on-creation
+			(org-edit-src-code)))
 
 ;;; Anything below here requires a plugin to be evaluated
 (defun helm-org-wiki-rust-block ()
-  "Insert a Rust code block.  Requires the ob-rust plugin available from MELPA."
+  "Insert a Rust code block.  Requires the ob-rust plugin available from MELPA for evaluation."
   (interactive)
   (insert (concat "#+BEGIN_SRC rust " helm-org-wiki-source-block-options))
   (org-return)
   (org-return)
   (insert "#+END_SRC")
-  (previous-line 1))
+  (previous-line 1)
+  (if helm-org-wiki-edit-source-block-on-creation
+			(org-edit-src-code)))
 
 
 (defun helm-org-wiki-go-block ()
-  "Insert a Golang code block.  Requires the ob-go plugin available from MELPA."
+  "Insert a Golang code block.  Requires the ob-go plugin available from MELPA for evaluation."
   (interactive)
   (insert (concat "#+BEGIN_SRC go " helm-org-wiki-source-block-options))
   (org-return)
   (org-return)
   (insert "#+END_SRC")
-  (previous-line 1))
+  (previous-line 1)
+  (if helm-org-wiki-edit-source-block-on-creation
+			(org-edit-src-code)))
 
 
 (defun helm-org-wiki-typescript-block ()
-  "Insert a Typescript code block.  Requires the ob-typescript plugin available from MELPA."
+  "Insert a Typescript code block.  Requires the ob-typescript plugin available from MELPA for evaluation."
   (interactive)
   (insert (concat "#+BEGIN_SRC typescript " helm-org-wiki-source-block-options))
   (org-return)
   (org-return)
   (insert "#+END_SRC")
-  (previous-line 1))))
+  (previous-line 1)
+  (if helm-org-wiki-edit-source-block-on-creation
+			(org-edit-src-code)))))
 
+(defun start-screenshotter()
+  (interactive)
+
+  )
 (provide 'helm-org-wiki)
 ;;; helm-org-wiki.el ends here
