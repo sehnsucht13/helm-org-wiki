@@ -30,6 +30,24 @@
   :group 'helm-org-wiki
   :type 'boolean)
 
+(defun helm-org-wiki-insert-block ()
+  "Open a helm prompt which will allow the user to select a language block to insert at point."
+  (interactive)
+	(helm
+	:sources (helm-build-sync-source "wiki-code-block-source"
+			   :candidates '("lisp" "emacs-lisp" "golang" "python" "latex"
+								  "sh" "java" "javascript" "haskell" "C"
+								  "C++" "awk" "clojure" "R" "perl" "gnuplot"
+								  "D" "ruby" "sed" "CSS" "rust" "typescript"
+								  "plantuml" "emacs-calc" "vala" "ledger"
+								  "sqlite" "sql" "sass" "ocaml" "org-mode"
+								  "scheme")
+			   :action (lambda (choice)
+						 (funcall (intern-soft (concat "helm-org-wiki-" choice "-block")))))
+	:buffer "*helm-org-wiki-source*"
+	:prompt "Select a Language "))
+
+
 (if helm-org-wiki-load-source-blocks
   (progn
 	(defun helm-org-wiki-emacs-lisp-block ()
@@ -183,7 +201,7 @@
 	(if helm-org-wiki-edit-source-block-on-creation
 				(org-edit-src-code)))
 
-	(defun helm-org-wiki-Gnuplot-block ()
+	(defun helm-org-wiki-gnuplot-block ()
 	"Insert a Gnuplot code block."
 	(interactive)
 	(insert (concat "#+BEGIN_SRC gnuplot " helm-org-wiki-source-block-options))
@@ -262,7 +280,7 @@
 				(org-edit-src-code)))
 
 
-	(defun helm-org-wiki-go-block ()
+	(defun helm-org-wiki-golang-block ()
 	"Insert a Golang code block.  Requires the ob-go plugin available from MELPA for evaluation."
 	(interactive)
 	(insert (concat "#+BEGIN_SRC go " helm-org-wiki-source-block-options))
@@ -283,8 +301,124 @@
 	(insert "#+END_SRC")
 	(previous-line 1)
 	(if helm-org-wiki-edit-source-block-on-creation
-				(org-edit-src-code)))))
+		(org-edit-src-code)))
 
+	(defun helm-org-wiki-scheme-block ()
+	"Insert a Typescript code block.  Requires the ob-typescript plugin available from MELPA for evaluation."
+	(interactive)
+	(insert (concat "#+BEGIN_SRC scheme" helm-org-wiki-source-block-options))
+	(org-return)
+	(org-return)
+	(insert "#+END_SRC")
+	(previous-line 1)
+	(if helm-org-wiki-edit-source-block-on-creation
+		(org-edit-src-code)))
+
+
+	(defun helm-org-wiki-org-mode-block ()
+	"Insert a Typescript code block.  Requires the ob-typescript plugin available from MELPA for evaluation."
+	(interactive)
+	(insert (concat "#+BEGIN_SRC org" helm-org-wiki-source-block-options))
+	(org-return)
+	(org-return)
+	(insert "#+END_SRC")
+	(previous-line 1)
+	(if helm-org-wiki-edit-source-block-on-creation
+		(org-edit-src-code)))
+
+
+	(defun helm-org-wiki-ocaml-block ()
+	"Insert a Typescript code block.  Requires the ob-typescript plugin available from MELPA for evaluation."
+	(interactive)
+	(insert (concat "#+BEGIN_SRC ocaml" helm-org-wiki-source-block-options))
+	(org-return)
+	(org-return)
+	(insert "#+END_SRC")
+	(previous-line 1)
+	(if helm-org-wiki-edit-source-block-on-creation
+		(org-edit-src-code)))
+
+
+	(defun helm-org-wiki-sass-block ()
+	"Insert a Typescript code block.  Requires the ob-typescript plugin available from MELPA for evaluation."
+	(interactive)
+	(insert (concat "#+BEGIN_SRC sass" helm-org-wiki-source-block-options))
+	(org-return)
+	(org-return)
+	(insert "#+END_SRC")
+	(previous-line 1)
+	(if helm-org-wiki-edit-source-block-on-creation
+		(org-edit-src-code)))
+
+	(defun helm-org-wiki-sql-block ()
+	"Insert a Typescript code block.  Requires the ob-typescript plugin available from MELPA for evaluation."
+	(interactive)
+	(insert (concat "#+BEGIN_SRC sql" helm-org-wiki-source-block-options))
+	(org-return)
+	(org-return)
+	(insert "#+END_SRC")
+	(previous-line 1)
+	(if helm-org-wiki-edit-source-block-on-creation
+		(org-edit-src-code)))
+
+
+	(defun helm-org-wiki-sqlite-block ()
+	"Insert a Typescript code block.  Requires the ob-typescript plugin available from MELPA for evaluation."
+	(interactive)
+	(insert (concat "#+BEGIN_SRC sqlite" helm-org-wiki-source-block-options))
+	(org-return)
+	(org-return)
+	(insert "#+END_SRC")
+	(previous-line 1)
+	(if helm-org-wiki-edit-source-block-on-creation
+		(org-edit-src-code)))
+
+	(defun helm-org-wiki-ledger-block ()
+	"Insert a Typescript code block.  Requires the ob-typescript plugin available from MELPA for evaluation."
+	(interactive)
+	(insert (concat "#+BEGIN_SRC ledger" helm-org-wiki-source-block-options))
+	(org-return)
+	(org-return)
+	(insert "#+END_SRC")
+	(previous-line 1)
+	(if helm-org-wiki-edit-source-block-on-creation
+		(org-edit-src-code)))
+
+
+	(defun helm-org-wiki-vala-block ()
+	"Insert a Typescript code block.  Requires the ob-typescript plugin available from MELPA for evaluation."
+	(interactive)
+	(insert (concat "#+BEGIN_SRC vala" helm-org-wiki-source-block-options))
+	(org-return)
+	(org-return)
+	(insert "#+END_SRC")
+	(previous-line 1)
+	(if helm-org-wiki-edit-source-block-on-creation
+		(org-edit-src-code)))
+
+	(defun helm-org-wiki-emacs-calc-block ()
+	"Insert a Typescript code block.  Requires the ob-typescript plugin available from MELPA for evaluation."
+	(interactive)
+	(insert (concat "#+BEGIN_SRC emacs-calc" helm-org-wiki-source-block-options))
+	(org-return)
+	(org-return)
+	(insert "#+END_SRC")
+	(previous-line 1)
+	(if helm-org-wiki-edit-source-block-on-creation
+		(org-edit-src-code)))
+
+	(defun helm-org-wiki-plantuml-block ()
+	"Insert a Typescript code block.  Requires the ob-typescript plugin available from MELPA for evaluation."
+	(interactive)
+	(insert (concat "#+BEGIN_SRC plantuml" helm-org-wiki-source-block-options))
+	(org-return)
+	(org-return)
+	(insert "#+END_SRC")
+	(previous-line 1)
+	(if helm-org-wiki-edit-source-block-on-creation
+		(org-edit-src-code)))
+	)
+  )
 
 (provide 'helm-org-wiki-blocks)
 ;;; helm-org-wiki-blocks.el ends here
